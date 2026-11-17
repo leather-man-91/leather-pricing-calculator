@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Leather Work Pricing Calculator</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Roboto+Slab:wght@600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f6f2ec; --card:#fffdf9; --ink:#2b2118; --muted:#7a6a5a; --line:#e4dacd;
+  --accent:#8a4b1f; --accent2:#b8743a; --good:#2f7a45; --warn:#b26a00; --bad:#b23a2a;
+  --mat:#b8743a; --lab:#5b7a8c; --ovh:#9a8a6a; --fee:#b23a2a; --profit:#2f7a45;
+}
+*{box-sizing:border-box}
+body{margin:0;font-family:Inter,system-ui,sans-serif;background:var(--bg);color:var(--ink);font-size:14px}
+header{padding:20px 24px 8px;max-width:1200px;margin:0 auto}
+h1{font-family:"Roboto Slab",serif;font-size:24px;margin:0 0 4px;color:var(--accent)}
+header p{margin:0;color:var(--muted)}
+.wrap{max-width:1200px;margin:0 auto;padding:12px 24px 40px;display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,1fr);gap:18px}
+@media(max-width:900px){.wrap{grid-template-columns:1fr}}
+.card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:16px 18px;margin-bottom:16px}
+.card h2{font-family:"Roboto Slab",serif;font-size:15px;margin:0 0 12px;color:var(--ink);display:flex;justify-content:space-between;align-items:center}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px 14px}
+.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px 14px}
+label{display:block;font-size:12px;color:var(--muted);margin-bottom:3px;font-weight:500}
+input,select{width:100%;padding:7px 9px;border:1px solid var(--line);border-radius:6px;font:inherit;background:#fff;color:var(--ink)}
+input:focus,select:focus{outline:2px solid var(--accent2);outline-offset:-1px;border-color:transparent}
+.hint{font-size:11px;color:var(--muted);margin-top:3px}
+table.mat{width:100%;border-collapse:collapse}
+table.mat th{font-size:11px;color:var(--muted);text-align:left;font-weight:500;padding:0 4px 4px}
+table.mat td{padding:3px 4px}
+table.mat td.num{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap;width:70px}
+.x{background:none;border:none;color:var(--muted);cursor:pointer;font-size:16px;padding:2px 6px}
+.x:hover{color:var(--bad)}
+.btn{background:var(--accent);color:#fff;border:none;border-radius:6px;padding:7px 12px;font:inherit;font-weight:600;cursor:pointer}
+.btn.ghost{background:transparent;color:var(--accent);border:1px solid var(--accent)}
+.btn.sm{padding:4px 9px;font-size:12px}
+.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.totline{display:flex;justify-content:space-between;margin-top:8px;padding-top:8px;border-top:1px dashed var(--line);font-weight:600}
+.sticky{position:sticky;top:12px}
+.prices{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+@media(max-width:560px){.prices{grid-template-columns:1fr}.grid3{grid-template-columns:1fr 1fr}}
+.pbox{border:1px solid var(--line);border-radius:8px;padding:12px;background:#fff}
+.pbox.rec{border:2px solid var(--accent);background:#fff8f0}
+.pbox .t{font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);font-weight:600}
+.pbox .v{font-family:"Roboto Slab",serif;font-size:26px;margin:4px 0;color:var(--ink)}
+.pbox .s{font-size:12px;color:var(--muted);line-height:1.45}
+.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:14px}
+@media(max-width:560px){.kpis{grid-template-columns:1fr 1fr}}
+.kpi{background:#fff;border:1px solid var(--line);border-radius:8px;padding:8px 10px}
+.kpi .t{font-size:11px;color:var(--muted)}
+.kpi .v{font-weight:700;font-size:17px;font-variant-numeric:tabular-nums}
+.bar{display:flex;height:22px;border-radius:5px;overflow:hidden;margin:6px 0 6px;border:1px solid var(--line)}
+.bar div{height:100%}
+.legend{display:flex;flex-wrap:wrap;gap:10px;font-size:11px;color:var(--muted)}
+.legend span::before{content:"";display:inline-block;width:9px;height:9px;border-radius:2px;margin-right:4px;background:var(--c)}
+table.bd{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums}
+table.bd th,table.bd td{padding:6px 6px;border-bottom:1px solid var(--line);text-align:right}
+table.bd th:first-child,table.bd td:first-child{text-align:left}
+table.bd th{font-size:11px;color:var(--muted);font-weight:600}
+table.bd tr.tot td{font-weight:700;border-top:2px solid var(--ink)}
+.flag{padding:8px 10px;border-radius:6px;font-size:12.5px;margin-top:8px;line-height:1.45}
+.flag.good{background:#e8f4ec;color:var(--good)}
+.flag.warn{background:#fdf1dc;color:var(--warn)}
+.flag.bad{background:#f9e3df;color:var(--bad)}
+.saved{display:flex;flex-direction:column;gap:6px;max-height:220px;overflow:auto}
+.saved .it{display:flex;justify-content:space-between;align-items:center;padding:6px 8px;border:1px solid var(--line);border-radius:6px;background:#fff;cursor:pointer}
+.saved .it:hover{border-color:var(--accent2)}
+.saved .it b{font-weight:600}
+.saved .it small{color:var(--muted)}
+.toggle{display:flex;align-items:center;gap:6px;font-size:12.5px;color:var(--ink)}
+.toggle input{width:auto}
+.toast{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);background:var(--ink);color:#fff;padding:8px 14px;border-radius:6px;font-size:13px;opacity:0;transition:opacity .2s;pointer-events:none}
+.toast.on{opacity:1}
+details summary{cursor:pointer;color:var(--muted);font-size:12.5px;margin-top:6px}
+</style>
+</head>
+<body>
+<header>
+  <h1>Leather Work Pricing Calculator</h1>
+  <p>Time + materials + overhead + target margin → recommended prices for direct, Etsy, and wholesale.</p>
+</header>
+
+<div class="wrap">
+<!-- LEFT: INPUTS -->
+<div>
+  <div class="card">
+    <h2>Item</h2>
+    <div class="grid2">
+      <div><label>Item name</label><input id="name" value="Embossed belt"></div>
+      <div><label>Batch size (units made together)</label><input id="batch" type="number" min="1" step="1" value="1">
+        <div class="hint">Enter totals for the batch; costs are divided per unit.</div></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Materials <button class="btn ghost sm" id="addMat">+ Add line</button></h2>
+    <table class="mat">
+      <thead><tr><th style="width:44%">Material</th><th>Qty</th><th>Unit cost $</th><th style="text-align:right">Line</th><th></th></tr></thead>
+      <tbody id="matBody"></tbody>
+    </table>
+    <div class="grid2" style="margin-top:10px">
+      <div><label>Waste / scrap allowance %</label><input id="waste" type="number" step="1" value="15">
+        <div class="hint">Hide yield loss, test cuts, mistakes.</div></div>
+      <div><label>Packaging per unit $</label><input id="pack" type="number" step="0.01" value="2.50"></div>
+    </div>
+    <div class="totline"><span>Materials per unit</span><span id="matTot">$0.00</span></div>
+  </div>
+
+  <div class="card">
+    <h2>Time</h2>
+    <div class="grid3">
+      <div><label>Cutting / prep (min)</label><input id="tPrep" type="number" step="1" value="20"></div>
+      <div><label>Tooling / stamping (min)</label><input id="tTool" type="number" step="1" value="45"></div>
+      <div><label>Dye / finish (min)</label><input id="tFin" type="number" step="1" value="30"></div>
+      <div><label>Stitch / assembly (min)</label><input id="tAsm" type="number" step="1" value="25"></div>
+      <div><label>Edges / burnish (min)</label><input id="tEdge" type="number" step="1" value="20"></div>
+      <div><label>Admin, photo, pack (min)</label><input id="tAdm" type="number" step="1" value="15"></div>
+    </div>
+    <div class="grid2" style="margin-top:10px">
+      <div><label>Your labor rate $/hr</label><input id="rate" type="number" step="1" value="30">
+        <div class="hint">What you'd pay someone skilled to do it — not what's left over.</div></div>
+      <div><label>Shop overhead $/hr</label><input id="ovh" type="number" step="0.5" value="6">
+        <div class="hint">Rent, power, tool wear, software ÷ shop hours.</div></div>
+    </div>
+    <div class="totline"><span>Labor per unit</span><span id="timeTot">0 min</span></div>
+  </div>
+
+  <div class="card">
+    <h2>Margin &amp; channels</h2>
+    <div class="grid2">
+      <div><label>Target profit margin % (on top of paying yourself)</label><input id="margin" type="number" step="1" value="30">
+        <div class="hint">Profit ÷ price. 30% margin ≈ 1.43× cost.</div></div>
+      <div><label>Rounding</label>
+        <select id="round">
+          <option value="99">Up to $X.99</option>
+          <option value="5" selected>Up to nearest $5</option>
+          <option value="1">Up to whole dollar</option>
+          <option value="0">No rounding</option>
+        </select></div>
+      <div><label>Market / competitor price $ (optional)</label><input id="market" type="number" step="1" placeholder="e.g. 85"></div>
+      <div><label>Wholesale margin % (your margin selling to stores)</label><input id="wsMargin" type="number" step="1" value="15">
+        <div class="hint">Stores typically double wholesale for MSRP.</div></div>
+    </div>
+    <details>
+      <summary>Etsy fee settings</summary>
+      <div class="grid2" style="margin-top:8px">
+        <div><label>Transaction fee %</label><input id="eTx" type="number" step="0.1" value="6.5"></div>
+        <div><label>Payment processing %</label><input id="eProc" type="number" step="0.1" value="3"></div>
+        <div><label>Processing fixed $</label><input id="eProcFix" type="number" step="0.01" value="0.25"></div>
+        <div><label>Listing fee $</label><input id="eList" type="number" step="0.01" value="0.20"></div>
+        <div><label>Offsite Ads % (if triggered)</label><input id="eAds" type="number" step="1" value="15"></div>
+        <div style="align-self:end"><label class="toggle"><input type="checkbox" id="eAdsOn"> Price to survive an Offsite Ads sale</label></div>
+      </div>
+      <div class="hint">Defaults are Etsy's US rates as commonly published — verify against your own fee statements.</div>
+    </details>
+  </div>
+</div>
+
+<!-- RIGHT: RESULTS -->
+<div>
+ <div class="sticky">
+  <div class="card">
+    <h2><span id="rName">Results</span>
+      <span class="row"><button class="btn sm" id="save">Save item</button><button class="btn ghost sm" id="copy">Copy summary</button></span></h2>
+
+    <div class="kpis">
+      <div class="kpi"><div class="t">True cost / unit</div><div class="v" id="kCost">$0</div></div>
+      <div class="kpi"><div class="t">Floor (0% margin)</div><div class="v" id="kFloor">$0</div></div>
+      <div class="kpi"><div class="t">Labor time</div><div class="v" id="kTime">0h</div></div>
+      <div class="kpi"><div class="t">Materials share</div><div class="v" id="kMatPct">0%</div></div>
+    </div>
+
+    <div class="prices">
+      <div class="pbox rec">
+        <div class="t">Direct / in-shop</div>
+        <div class="v" id="pDirect">$0</div>
+        <div class="s" id="sDirect"></div>
+      </div>
+      <div class="pbox">
+        <div class="t">Etsy</div>
+        <div class="v" id="pEtsy">$0</div>
+        <div class="s" id="sEtsy"></div>
+      </div>
+      <div class="pbox">
+        <div class="t">Wholesale → MSRP</div>
+        <div class="v" id="pWs">$0</div>
+        <div class="s" id="sWs"></div>
+      </div>
+    </div>
+
+    <div id="flags"></div>
+
+    <div style="margin-top:14px">
+      <div style="font-size:12px;color:var(--muted);font-weight:600">Where the direct price goes</div>
+      <div class="bar" id="bar"></div>
+      <div class="legend">
+        <span style="--c:var(--mat)">Materials</span>
+        <span style="--c:var(--lab)">Labor</span>
+        <span style="--c:var(--ovh)">Overhead</span>
+        <span style="--c:var(--profit)">Profit</span>
+      </div>
+    </div>
+
+    <table class="bd" style="margin-top:14px">
+      <thead><tr><th>Per unit</th><th>Direct</th><th>Etsy</th><th>Wholesale</th></tr></thead>
+      <tbody id="bdBody"></tbody>
+    </table>
+  </div>
+
+  <div class="card">
+    <h2>Saved items <button class="btn ghost sm" id="newItem">New item</button></h2>
+    <div class="saved" id="savedList"><div class="hint">Nothing saved yet. Saved items stay in this browser only.</div></div>
+  </div>
+ </div>
+</div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+const $=id=>document.getElementById(id);
+const fmt=n=>(isFinite(n)?(n<0?"-$":"$")+Math.abs(n).toFixed(2):"—");
+const fmt0=n=>(isFinite(n)?"$"+Math.round(n).toLocaleString():"—");
+const num=id=>parseFloat($(id).value)||0;
+
+const defaultMats=[
+  {n:"Veg-tan strap (8-9 oz)",q:1,c:14},
+  {n:"Buckle",q:1,c:6.5},
+  {n:"Dye / finish / glue",q:1,c:2},
+  {n:"Snaps / screws",q:2,c:0.6}
+];
+
+function matRow(m){
+  const tr=document.createElement("tr");
+  tr.innerHTML=`<td><input class="mn" value="${(m.n||"").replace(/"/g,'&quot;')}"></td>
+  <td><input class="mq" type="number" step="any" value="${m.q??1}"></td>
+  <td><input class="mc" type="number" step="0.01" value="${m.c??0}"></td>
+  <td class="num ml">$0.00</td><td><button class="x" title="Remove">×</button></td>`;
+  tr.querySelector(".x").onclick=()=>{tr.remove();calc();};
+  tr.querySelectorAll("input").forEach(i=>i.addEventListener("input",calc));
+  $("matBody").appendChild(tr);
+}
+function getMats(){
+  return [...$("matBody").querySelectorAll("tr")].map(tr=>({
+    n:tr.querySelector(".mn").value,
+    q:parseFloat(tr.querySelector(".mq").value)||0,
+    c:parseFloat(tr.querySelector(".mc").value)||0,
+    tr
+  }));
+}
+function roundPrice(p,mode){
+  if(!isFinite(p)||p<=0) return p;
+  if(mode==="99") return Math.ceil(p+0.01)-0.01;
+  if(mode==="5") return Math.ceil(p/5)*5;
+  if(mode==="1") return Math.ceil(p);
+  return Math.round(p*100)/100;
+}
+const timeIds=["tPrep","tTool","tFin","tAsm","tEdge","tAdm"];
+
+let last={};
+function calc(){
+  const batch=Math.max(1,Math.round(num("batch")));
+  // materials
+  let raw=0;
+  getMats().forEach(m=>{const l=m.q*m.c; raw+=l; m.tr.querySelector(".ml").textContent=fmt(l);});
+  const matUnit=raw*(1+num("waste")/100)/batch + num("pack");
+  $("matTot").textContent=fmt(matUnit);
+  // time
+  const mins=timeIds.reduce((s,id)=>s+num(id),0)/batch;
+  const hrs=mins/60;
+  $("timeTot").textContent=`${Math.round(mins)} min (${hrs.toFixed(2)} h)`;
+  const labor=hrs*num("rate");
+  const ovh=hrs*num("ovh");
+  const cost=matUnit+labor+ovh;
+
+  const m=Math.min(num("margin"),95)/100;
+  const mode=$("round").value;
+
+  // Direct
+  const directRaw=cost/(1-m);
+  const direct=roundPrice(directRaw,mode);
+  const dProfit=direct-cost;
+
+  // Etsy: P - (pct*P + fixed) - cost = m*P  -> P = (cost+fixed)/(1-m-pct)
+  let pct=(num("eTx")+num("eProc"))/100;
+  if($("eAdsOn").checked) pct+=num("eAds")/100;
+  const fixed=num("eProcFix")+num("eList");
+  const etsyRaw=(1-m-pct)>0.02?(cost+fixed)/(1-m-pct):Infinity;
+  const etsy=roundPrice(etsyRaw,mode);
+  const eFees=etsy*pct+fixed;
+  const eProfit=etsy-eFees-cost;
+
+  // Wholesale
+  const wm=Math.min(num("wsMargin"),95)/100;
+  const wsRaw=cost/(1-wm);
+  const ws=roundPrice(wsRaw,mode==="5"?"1":mode);
+  const msrp=ws*2;
+  const wProfit=ws-cost;
+
+  // KPIs
+  $("rName").textContent=$("name").value||"Results";
+  $("kCost").textContent=fmt(cost);
+  $("kFloor").textContent=fmt(cost);
+  $("kTime").textContent=hrs.toFixed(2)+"h";
+  $("kMatPct").textContent=cost>0?Math.round(matUnit/cost*100)+"%":"—";
+
+  const effHr=(p,profit)=>hrs>0?fmt((labor+profit)/hrs)+"/hr":"—";
+  $("pDirect").textContent=fmt0(direct);
+  $("sDirect").innerHTML=`Profit ${fmt(dProfit)} (${direct>0?Math.round(dProfit/direct*100):0}%)<br>You earn ${effHr(direct,dProfit)} all-in<br>Markup ${(direct/cost).toFixed(2)}× cost`;
+  $("pEtsy").textContent=isFinite(etsy)?fmt0(etsy):"Not viable";
+  $("sEtsy").innerHTML=isFinite(etsy)?`Fees ${fmt(eFees)} → net ${fmt(etsy-eFees)}<br>Profit ${fmt(eProfit)} (${Math.round(eProfit/etsy*100)}%)<br>You earn ${effHr(etsy,eProfit)} all-in`:"Margin + fees exceed 100%. Lower the margin target.";
+  $("pWs").innerHTML=`${fmt0(ws)} <span style="font-size:15px;color:var(--muted)">→ ${fmt0(msrp)}</span>`;
+  $("sWs").innerHTML=`Your profit ${fmt(wProfit)} (${ws>0?Math.round(wProfit/ws*100):0}%)<br>Store's MSRP at 2× wholesale<br>You earn ${effHr(ws,wProfit)} all-in`;
+
+  // Bar
+  const parts=[[matUnit,"--mat"],[labor,"--lab"],[ovh,"--ovh"],[Math.max(dProfit,0),"--profit"]];
+  $("bar").innerHTML=parts.map(([v,c])=>`<div style="width:${direct>0?v/direct*100:0}%;background:var(${c})" title="${fmt(v)}"></div>`).join("");
+
+  // Breakdown table
+  const rows=[
+    ["Materials (incl. waste, pack)",matUnit,matUnit,matUnit],
+    ["Labor",labor,labor,labor],
+    ["Overhead",ovh,ovh,ovh],
+    ["Channel fees",0,isFinite(etsy)?eFees:NaN,0],
+    ["Profit",dProfit,isFinite(etsy)?eProfit:NaN,wProfit],
+  ];
+  $("bdBody").innerHTML=rows.map(r=>`<tr><td>${r[0]}</td><td>${fmt(r[1])}</td><td>${fmt(r[2])}</td><td>${fmt(r[3])}</td></tr>`).join("")+
+    `<tr class="tot"><td>Price</td><td>${fmt(direct)}</td><td>${isFinite(etsy)?fmt(etsy):"—"}</td><td>${fmt(ws)}</td></tr>`;
+
+  // Flags
+  const f=[];
+  const mk=num("market");
+  if(mk>0){
+    const r=direct/mk;
+    if(r>1.25) f.push(["warn",`Direct price is ${Math.round((r-1)*100)}% above the market price you entered. Either the piece needs to read as clearly premium (custom, tooled, story), or the time needs to come down.`]);
+    else if(r<0.85) f.push(["warn",`You're ${Math.round((1-r)*100)}% under market. You likely have room to raise the price.`]);
+    else f.push(["good",`Within ±15–25% of the market price you entered.`]);
+    if(cost>mk) f.push(["bad",`Your true cost (${fmt(cost)}) is above the market price. At this time and rate, you lose money matching the market. Cut time (templates, batching, stamps), cut material cost, or go after a different buyer.`]);
+  }
+  if(cost>0 && matUnit/cost<0.15) f.push(["warn",`Labor is ${Math.round((labor+ovh)/cost*100)}% of cost. Time is what you're selling here, so batching and tooling shortcuts will pay off most.`]);
+  if(msrp>direct*1.15) f.push(["warn",`A store's MSRP (${fmt0(msrp)}) would sit well above your own direct price (${fmt0(direct)}). Stores won't like being undercut. Raise your direct price toward MSRP or don't wholesale this item.`]);
+  if(isFinite(etsy) && etsy>direct*1.2) f.push(["warn",`Etsy needs to be ${Math.round((etsy/direct-1)*100)}% higher than direct to hold your margin. Use one price everywhere (the Etsy price) or accept a thinner Etsy margin.`]);
+  $("flags").innerHTML=f.map(([c,t])=>`<div class="flag ${c}">${t}</div>`).join("");
+
+  last={name:$("name").value,cost,direct,etsy,ws,msrp,hrs,matUnit,labor,ovh,dProfit,eProfit,eFees,margin:m};
+}
+
+// Save / load (browser only)
+const KEY="leatherPricingItems.v1";
+function readSaved(){try{return JSON.parse(localStorage.getItem(KEY))||[]}catch(e){return[]}}
+function writeSaved(a){try{localStorage.setItem(KEY,JSON.stringify(a));return true}catch(e){return false}}
+const fields=["name","batch","waste","pack",...timeIds,"rate","ovh","margin","round","market","wsMargin","eTx","eProc","eProcFix","eList","eAds"];
+function snapshot(){
+  const o={}; fields.forEach(f=>o[f]=$(f).value); o.eAdsOn=$("eAdsOn").checked;
+  o.mats=getMats().map(({n,q,c})=>({n,q,c})); o.result={direct:last.direct,etsy:last.etsy,ws:last.ws,cost:last.cost};
+  return o;
+}
+function load(o){
+  fields.forEach(f=>{if(o[f]!==undefined)$(f).value=o[f]}); $("eAdsOn").checked=!!o.eAdsOn;
+  $("matBody").innerHTML=""; (o.mats||[]).forEach(matRow); calc();
+}
+function renderSaved(){
+  const a=readSaved(); const el=$("savedList");
+  if(!a.length){el.innerHTML='<div class="hint">Nothing saved yet. Saved items stay in this browser only.</div>';return}
+  el.innerHTML="";
+  a.forEach((o,i)=>{
+    const d=document.createElement("div"); d.className="it";
+    d.innerHTML=`<div><b>${o.name||"Untitled"}</b><br><small>Cost ${fmt(o.result.cost)} · Direct ${fmt0(o.result.direct)} · Etsy ${isFinite(o.result.etsy)&&o.result.etsy?fmt0(o.result.etsy):"—"} · WS ${fmt0(o.result.ws)}</small></div><button class="x" title="Delete">×</button>`;
+    d.onclick=e=>{if(e.target.classList.contains("x"))return; load(o); toast("Loaded "+(o.name||"item"));};
+    d.querySelector(".x").onclick=e=>{e.stopPropagation(); const b=readSaved(); b.splice(i,1); writeSaved(b); renderSaved();};
+    el.appendChild(d);
+  });
+}
+function toast(t){const e=$("toast");e.textContent=t;e.classList.add("on");setTimeout(()=>e.classList.remove("on"),1600)}
+
+$("save").onclick=()=>{
+  const a=readSaved(); const s=snapshot(); const i=a.findIndex(x=>x.name===s.name);
+  if(i>=0)a[i]=s; else a.push(s);
+  toast(writeSaved(a)?"Saved":"Couldn't save in this browser"); renderSaved();
+};
+$("newItem").onclick=()=>{ $("name").value="New item"; $("matBody").innerHTML=""; matRow({n:"",q:1,c:0}); timeIds.forEach(id=>$(id).value=0); $("market").value=""; calc(); };
+$("addMat").onclick=()=>{matRow({n:"",q:1,c:0});calc();};
+$("copy").onclick=async()=>{
+  const l=last;
+  const t=`${l.name}
+True cost: ${fmt(l.cost)} (materials ${fmt(l.matUnit)}, labor ${fmt(l.labor)}, overhead ${fmt(l.ovh)}; ${l.hrs.toFixed(2)} h)
+Direct: ${fmt(l.direct)} (profit ${fmt(l.dProfit)})
+Etsy: ${isFinite(l.etsy)?fmt(l.etsy)+` (fees ${fmt(l.eFees)}, profit ${fmt(l.eProfit)})`:"not viable at this margin"}
+Wholesale: ${fmt(l.ws)} → MSRP ${fmt(l.msrp)}`;
+  try{await navigator.clipboard.writeText(t);toast("Copied")}catch(e){toast("Copy blocked by browser")}
+};
+
+document.querySelectorAll("input,select").forEach(i=>{if(!i.closest("#matBody"))i.addEventListener("input",calc)});
+defaultMats.forEach(matRow);
+calc(); renderSaved();
+</script>
+</body>
+</html>
